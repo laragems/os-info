@@ -1,0 +1,174 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Laragems\OsInfo\OsInfo;
+
+$autoloads = array_filter([
+    $_composer_autoload_path ?? null,
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/../../../autoload.php',
+    __DIR__ . '/../src/autoload.php',
+]);
+
+foreach ($autoloads as $autoload) {
+    if (is_string($autoload) && is_file($autoload)) {
+        require $autoload;
+        break;
+    }
+}
+
+if (!class_exists(OsInfo::class)) {
+    fwrite(STDERR, "Unable to locate an autoloader. Run composer install or require src/autoload.php.\n");
+    exit(1);
+}
+
+$arguments = array_slice($argv, 1);
+
+if (in_array('--help', $arguments, true) || in_array('-h', $arguments, true)) {
+    echo <<<HELP
+Usage:
+  os-info [--json] [--pretty]
+
+Options:
+  --json      Print normalized OS information as JSON.
+  --pretty    Print human-readable sections. This is the default.
+  --help      Show this help text.
+
+HELP;
+    exit(0);
+}
+
+$asJson = in_array('--json', $arguments, true);
+$data = OsInfo::detect()->toArray();
+
+if ($asJson) {
+    echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL;
+    exit(0);
+}
+
+printSection('Operating System', [
+    'Name' => $data['name'],
+    'Platform' => $data['platform'],
+    'Version' => $data['version'],
+    'Version ID' => $data['version_id'],
+    'Architecture' => $data['architecture'],
+    'Raw Architecture' => $data['raw_architecture'],
+    'Hostname' => $data['hostname'],
+    'Kernel' => trim(sprintf('%s %s', $data['kernel_name'] ?? '', $data['kernel_release'] ?? '')),
+    'Container' => $data['is_container'] ? 'yes' : 'no',
+    'Uptime' => formatSeconds($data['uptime_seconds']),
+]);
+
+printSection('CPU', [
+    'Model' => $data['cpu']['model_name'],
+    'Vendor' => $data['cpu']['vendor'],
+    'Architecture' => $data['cpu']['architecture'],
+    'Logical Cores' => $data['cpu']['logical_cores'],
+    'Physical Cores' => $data['cpu']['physical_cores'],
+    'Frequency' => $data['cpu']['frequency_mhz'] === null ? null : sprintf('%.2f MHz', $data['cpu']['frequency_mhz']),
+    'Flags' => count($data['cpu']['flags']),
+]);
+
+printSection('Runtime Environment', [
+    'Current User' => $data['runtime']['current_user'],
+    'Privileged' => $data['runtime']['is_privileged'],
+    'Shell' => $data['runtime']['shell'],
+    'Timezone' => $data['runtime']['timezone'],
+    'Process Count' => $data['runtime']['process_count'],
+    'Container' => $data['runtime']['is_container'],
+    'Virtualized' => $data['runtime']['is_virtualized'],
+    'Virtualization' => $data['runtime']['virtualization_type'],
+    'PHP Version' => $data['runtime']['php_version'],
+    'PHP SAPI' => $data['runtime']['php_sapi'],
+]);
+
+printSection('Memory', [
+    'Total' => formatBytes($data['memory']['total_bytes']),
+    'Available' => formatBytes($data['memory']['available_bytes']),
+    'Free' => formatBytes($data['memory']['free_bytes']),
+    'Used' => formatBytes($data['memory']['used_bytes']),
+    'Swap Total' => formatBytes($data['memory']['swap_total_bytes']),
+    'Swap Free' => formatBytes($data['memory']['swap_free_bytes']),
+]);
+
+printSection('Load Average', [
+    '1m' => $data['load_average']['1m'],
+    '5m' => $data['load_average']['5m'],
+    '15m' => $data['load_average']['15m'],
+]);
+
+/**
+ * @param array<string, mixed> $rows
+ */
+function printSection(string $title, array $rows): void
+{
+    echo $title . PHP_EOL;
+
+    foreach ($rows as $label => $value) {
+        printf("  %-18s %s\n", $label . ':', formatValue($value));
+    }
+
+    echo PHP_EOL;
+}
+
+function formatValue(mixed $value): string
+{
+    if ($value === null || $value === '') {
+        return 'n/a';
+    }
+
+    if (is_bool($value)) {
+        return $value ? 'yes' : 'no';
+    }
+
+    if (is_array($value)) {
+        return json_encode($value, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    }
+
+    return (string) $value;
+}
+
+function formatBytes(?int $bytes): string
+{
+    if ($bytes === null) {
+        return 'n/a';
+    }
+
+    $units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+    $value = (float) $bytes;
+    $unit = 0;
+
+    while ($value >= 1024 && $unit < count($units) - 1) {
+        $value /= 1024;
+        $unit++;
+    }
+
+    return sprintf($unit === 0 ? '%.0f %s' : '%.2f %s', $value, $units[$unit]);
+}
+
+function formatSeconds(?float $seconds): string
+{
+    if ($seconds === null) {
+        return 'n/a';
+    }
+
+    $seconds = (int) $seconds;
+    $days = intdiv($seconds, 86400);
+    $seconds %= 86400;
+    $hours = intdiv($seconds, 3600);
+    $seconds %= 3600;
+    $minutes = intdiv($seconds, 60);
+
+    if ($days > 0) {
+        return sprintf('%dd %dh %dm', $days, $hours, $minutes);
+    }
+
+    if ($hours > 0) {
+        return sprintf('%dh %dm', $hours, $minutes);
+    }
+
+    return sprintf('%dm', $minutes);
+}
+

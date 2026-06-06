@@ -1,0 +1,23 @@
+freebsd_task:
+  name: FreeBSD
+  env:
+    COMPOSER_ROOT_VERSION: dev-main
+
+  freebsd_instance:
+    image_family: freebsd-14-3
+
+  install_script:
+    - pkg install -y php84 php84-phar php84-json composer
+
+  validate_script:
+    - composer validate --strict
+
+  autoload_script:
+    - composer dump-autoload --strict-psr
+
+  test_script:
+    - composer test
+
+  os_info_script:
+    - php bin/os-info
+    - php bin/os-info --json

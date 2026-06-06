@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: PHP ${{ matrix.php }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    env:
+      COMPOSER_ROOT_VERSION: dev-main
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        php:
+          - '8.1'
+          - '8.4'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Show PHP version
+        run: php -v
+
+      - name: Validate Composer package
+        run: composer validate --strict
+
+      - name: Build autoloader
+        run: composer dump-autoload --strict-psr
+
+      - name: Run tests
+        run: composer test
+
+      - name: Show normalized OS info
+        run: php bin/os-info
+
+      - name: Show normalized OS info as JSON
+        run: php bin/os-info --json

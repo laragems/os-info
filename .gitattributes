@@ -1,0 +1,5 @@
+* text=auto eol=lf
+/outputs export-ignore
+/work export-ignore
+/vendor export-ignore
+/composer.lock export-ignore

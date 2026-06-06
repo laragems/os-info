@@ -1,0 +1,30 @@
+{
+    "name": "laragems/os-info",
+    "description": "Normalized operating system detection for generic PHP applications.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "os",
+        "operating-system",
+        "system-info",
+        "hardware",
+        "cpu",
+        "memory"
+    ],
+    "require": {
+        "php": ">=8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laragems\\OsInfo\\": "src/"
+        }
+    },
+    "bin": [
+        "bin/os-info"
+    ],
+    "scripts": {
+        "test": "php tests/run.php"
+    },
+    "minimum-stability": "stable"
+}
+
