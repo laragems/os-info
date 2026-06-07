@@ -1,6 +1,6 @@
 {
     "name": "laragems/os-info",
-    "description": "Normalized operating system detection for generic PHP applications.",
+    "description": "Operating system detection for PHP applications.",
     "type": "library",
     "license": "MIT",
     "keywords": [

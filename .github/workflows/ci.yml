@@ -41,13 +41,13 @@ jobs:
         run: composer validate --strict
 
       - name: Build autoloader
-        run: composer dump-autoload --strict-psr
+        run: composer dump-autoload --optimize --strict-psr
 
       - name: Run tests
         run: composer test
 
-      - name: Show normalized OS info
+      - name: Show OS info
         run: php bin/os-info
 
-      - name: Show normalized OS info as JSON
+      - name: Show OS info as JSON
         run: php bin/os-info --json

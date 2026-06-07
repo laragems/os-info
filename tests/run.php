@@ -96,7 +96,7 @@ runTests([
         assertSameValue(65536, $memory->swapFreeBytes());
     },
 
-    'linux meminfo parser returns normalized memory' => function (): void {
+    'linux meminfo parser returns memory' => function (): void {
         $memory = LinuxProbe::parseMemoryInfo(<<<'MEMINFO'
 MemTotal:        2048000 kB
 MemFree:          512000 kB
@@ -110,7 +110,7 @@ MEMINFO);
         assertSameValue(1310720000, $memory->usedBytes());
     },
 
-    'linux cpuinfo parser returns normalized cpu' => function (): void {
+    'linux cpuinfo parser returns cpu' => function (): void {
         $cpu = LinuxProbe::parseCpuInfo(<<<'CPUINFO'
 processor   : 0
 vendor_id   : GenuineIntel

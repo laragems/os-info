@@ -32,7 +32,7 @@ Usage:
   os-info [--json] [--pretty]
 
 Options:
-  --json      Print normalized OS information as JSON.
+  --json      Print OS information as JSON.
   --pretty    Print human-readable sections. This is the default.
   --help      Show this help text.
 

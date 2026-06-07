@@ -1,6 +1,6 @@
 # Laragems OS Info
 
-`laragems/os-info` detects normalized operating system information from plain PHP.
+`laragems/os-info` detects operating system information from plain PHP.
 It is framework-free and has no third-party runtime dependencies.
 
 ## Install With Composer

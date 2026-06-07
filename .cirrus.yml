@@ -13,7 +13,7 @@ freebsd_task:
     - composer validate --strict
 
   autoload_script:
-    - composer dump-autoload --strict-psr
+    - composer dump-autoload --optimize --strict-psr
 
   test_script:
     - composer test
