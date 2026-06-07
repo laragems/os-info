@@ -5,9 +5,11 @@ declare(strict_types=1);
 use Laragems\OsInfo\OperatingSystemInfo;
 use Laragems\OsInfo\OsInfo;
 use Laragems\OsInfo\Platform;
+use Laragems\OsInfo\DetectedOperatingSystemInfo;
 use Laragems\OsInfo\Probe\LinuxProbe;
 use Laragems\OsInfo\Probe\WindowsProbe;
 use Laragems\OsInfo\Support\ArchitectureNormalizer;
+use Laragems\OsInfo\Value\CpuInfo;
 use Laragems\OsInfo\Value\MemoryInfo;
 use Laragems\OsInfo\Value\RuntimeEnvironment;
 use Laragems\OsInfo\VirtualizationType;
@@ -26,6 +28,8 @@ final class TestFailure extends RuntimeException
 }
 
 /**
+ * Runs each test callback and exits on the first failure.
+ *
  * @param array<string, callable(): void> $tests
  */
 function runTests(array $tests): void
@@ -47,6 +51,9 @@ function runTests(array $tests): void
     fwrite(STDOUT, sprintf("\n%d tests passed.\n", $passed));
 }
 
+/**
+ * Asserts that two values are strictly equal.
+ */
 function assertSameValue(mixed $expected, mixed $actual, string $message = ''): void
 {
     if ($expected !== $actual) {
@@ -58,6 +65,9 @@ function assertSameValue(mixed $expected, mixed $actual, string $message = ''): 
     }
 }
 
+/**
+ * Asserts that a condition is true.
+ */
 function assertTrueValue(bool $condition, string $message): void
 {
     if (!$condition) {
@@ -178,6 +188,46 @@ CPUINFO, 'x86_64');
         assertSameValue('8.5.0', $runtime->phpVersion());
     },
 
+    'runtime environment is resolved only when requested and is not cached' => function (): void {
+        $runtimeCalls = 0;
+        $info = new DetectedOperatingSystemInfo(
+            name: 'ExampleOS',
+            platform: Platform::Linux,
+            version: null,
+            versionId: null,
+            architecture: 'x86_64',
+            rawArchitecture: 'x86_64',
+            hostname: null,
+            kernelName: null,
+            kernelRelease: null,
+            memory: new MemoryInfo(),
+            cpu: new CpuInfo('x86_64'),
+            runtime: static function () use (&$runtimeCalls): RuntimeEnvironment {
+                $runtimeCalls++;
+
+                return new RuntimeEnvironment(
+                    currentUser: 'example-' . $runtimeCalls,
+                    isContainer: false,
+                );
+            },
+            uptimeSeconds: null,
+            loadAverage: ['1m' => null, '5m' => null, '15m' => null],
+        );
+
+        assertSameValue(0, $runtimeCalls);
+        assertSameValue(Platform::Linux, $info->platform());
+        assertSameValue('ExampleOS', $info->name());
+        assertSameValue(0, $runtimeCalls);
+        assertSameValue('example-1', $info->runtime()->currentUser());
+        assertSameValue('example-2', $info->runtime()->currentUser());
+        assertSameValue(2, $runtimeCalls);
+
+        $payload = $info->toArray();
+
+        assertSameValue('example-3', $payload[OperatingSystemInfo::RUNTIME]['current_user']);
+        assertSameValue(3, $runtimeCalls);
+    },
+
     'current operating system detection returns a normalized payload' => function (): void {
         $os = OsInfo::detect();
         $payload = $os->toArray();
@@ -194,4 +244,3 @@ CPUINFO, 'x86_64');
         assertTrueValue(json_encode($payload) !== false, 'Payload should be JSON encodable.');
     },
 ]);
-

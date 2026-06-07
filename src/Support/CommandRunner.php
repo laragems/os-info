@@ -7,6 +7,8 @@ namespace Laragems\OsInfo\Support;
 final class CommandRunner
 {
     /**
+     * Runs a command and returns trimmed stdout.
+     *
      * @param list<string> $command
      */
     public function run(array $command, float $timeoutSeconds = 2.0): ?string
@@ -63,6 +65,8 @@ final class CommandRunner
     }
 
     /**
+     * Closes any open process pipes.
+     *
      * @param array<int, resource> $pipes
      */
     private function closePipes(array $pipes): void

@@ -7,6 +7,8 @@ namespace Laragems\OsInfo\Value;
 final class CpuInfo
 {
     /**
+     * Creates a CPU information value object.
+     *
      * @param list<string> $flags
      */
     public function __construct(
@@ -36,37 +38,57 @@ final class CpuInfo
         }
     }
 
+    /**
+     * Returns the normalized CPU architecture.
+     */
     public function architecture(): string
     {
         return $this->architecture;
     }
 
+    /**
+     * Returns the CPU model name.
+     */
     public function modelName(): ?string
     {
         return $this->modelName;
     }
 
+    /**
+     * Returns the CPU vendor name.
+     */
     public function vendor(): ?string
     {
         return $this->vendor;
     }
 
+    /**
+     * Returns the number of logical CPU cores.
+     */
     public function logicalCores(): ?int
     {
         return $this->logicalCores;
     }
 
+    /**
+     * Returns the number of physical CPU cores.
+     */
     public function physicalCores(): ?int
     {
         return $this->physicalCores;
     }
 
+    /**
+     * Returns the CPU frequency in MHz.
+     */
     public function frequencyMHz(): ?float
     {
         return $this->frequencyMHz;
     }
 
     /**
+     * Returns CPU feature flags.
+     *
      * @return list<string>
      */
     public function flags(): array
@@ -75,6 +97,8 @@ final class CpuInfo
     }
 
     /**
+     * Returns CPU information as an array payload.
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

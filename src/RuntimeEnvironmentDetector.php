@@ -9,11 +9,17 @@ use Laragems\OsInfo\Value\RuntimeEnvironment;
 
 final class RuntimeEnvironmentDetector
 {
+    /**
+     * Creates a runtime detector with an optional command runner.
+     */
     public function __construct(
         private readonly CommandRunner $commands = new CommandRunner(),
     ) {
     }
 
+    /**
+     * Detects runtime environment details for the current process.
+     */
     public function detect(Platform $platform, bool $isContainer): RuntimeEnvironment
     {
         $isContainer = $isContainer || $this->detectContainer($platform);
@@ -30,6 +36,9 @@ final class RuntimeEnvironmentDetector
         );
     }
 
+    /**
+     * Returns the current process user.
+     */
     private function currentUser(Platform $platform): ?string
     {
         if ($platform === Platform::Windows) {
@@ -48,6 +57,9 @@ final class RuntimeEnvironmentDetector
         );
     }
 
+    /**
+     * Returns whether the current process has elevated privileges.
+     */
     private function isPrivileged(Platform $platform): ?bool
     {
         if ($platform === Platform::Windows) {
@@ -72,6 +84,9 @@ final class RuntimeEnvironmentDetector
         return $uid === null ? null : $uid === 0;
     }
 
+    /**
+     * Returns the current shell or command interpreter path.
+     */
     private function shell(Platform $platform): ?string
     {
         if ($platform === Platform::Windows) {
@@ -87,6 +102,9 @@ final class RuntimeEnvironmentDetector
         );
     }
 
+    /**
+     * Returns the system or PHP timezone identifier.
+     */
     private function timezone(Platform $platform): ?string
     {
         $systemTimezone = match ($platform) {
@@ -106,6 +124,9 @@ final class RuntimeEnvironmentDetector
         return $this->firstNonEmpty($systemTimezone, date_default_timezone_get());
     }
 
+    /**
+     * Returns the current process count.
+     */
     private function processCount(Platform $platform): ?int
     {
         if ($platform === Platform::Linux) {
@@ -149,6 +170,9 @@ final class RuntimeEnvironmentDetector
         return count($lines);
     }
 
+    /**
+     * Detects platform-specific container markers.
+     */
     private function detectContainer(Platform $platform): bool
     {
         if ($platform === Platform::Windows) {
@@ -173,6 +197,9 @@ final class RuntimeEnvironmentDetector
         return false;
     }
 
+    /**
+     * Detects the broad virtualization category.
+     */
     private function virtualizationType(Platform $platform, bool $isContainer): VirtualizationType
     {
         if ($isContainer) {
@@ -187,6 +214,9 @@ final class RuntimeEnvironmentDetector
         };
     }
 
+    /**
+     * Detects Linux virtualization and WSL markers.
+     */
     private function linuxVirtualizationType(): VirtualizationType
     {
         $release = $this->readFile('/proc/sys/kernel/osrelease') ?? '';
@@ -210,6 +240,9 @@ final class RuntimeEnvironmentDetector
         return VirtualizationType::Unknown;
     }
 
+    /**
+     * Detects whether macOS is running under a hypervisor.
+     */
     private function macOsVirtualizationType(): VirtualizationType
     {
         $hypervisor = $this->commands->run(['sysctl', '-n', 'kern.hv_vmm_present']);
@@ -221,6 +254,9 @@ final class RuntimeEnvironmentDetector
         return VirtualizationType::Unknown;
     }
 
+    /**
+     * Detects Windows virtualization from the computer model.
+     */
     private function windowsVirtualizationType(): VirtualizationType
     {
         $model = $this->commands->run([
@@ -239,6 +275,9 @@ final class RuntimeEnvironmentDetector
         return VirtualizationType::Unknown;
     }
 
+    /**
+     * Returns the Linux timezone when the system exposes one.
+     */
     private function linuxTimezone(): ?string
     {
         $timezone = $this->readFile('/etc/timezone');
@@ -250,6 +289,9 @@ final class RuntimeEnvironmentDetector
         return $this->unixLocaltimeZone();
     }
 
+    /**
+     * Resolves a Unix timezone from /etc/localtime.
+     */
     private function unixLocaltimeZone(): ?string
     {
         $target = @readlink('/etc/localtime');
@@ -268,6 +310,9 @@ final class RuntimeEnvironmentDetector
         return substr($target, $position + strlen($marker));
     }
 
+    /**
+     * Counts Linux processes by scanning /proc.
+     */
     private function linuxProcessCount(): ?int
     {
         if (!is_dir('/proc')) {
@@ -291,6 +336,9 @@ final class RuntimeEnvironmentDetector
         return $count;
     }
 
+    /**
+     * Returns the first non-empty string from the provided values.
+     */
     private function firstNonEmpty(?string ...$values): ?string
     {
         foreach ($values as $value) {
@@ -304,6 +352,9 @@ final class RuntimeEnvironmentDetector
         return null;
     }
 
+    /**
+     * Trims a string and converts empty values to null.
+     */
     private function nullable(?string $value): ?string
     {
         if ($value === null) {
@@ -315,6 +366,9 @@ final class RuntimeEnvironmentDetector
         return $value === '' ? null : $value;
     }
 
+    /**
+     * Converts common string booleans into bool values.
+     */
     private function boolean(?string $value): ?bool
     {
         $value = $this->nullable($value);
@@ -330,6 +384,9 @@ final class RuntimeEnvironmentDetector
         };
     }
 
+    /**
+     * Parses a non-negative integer from a string.
+     */
     private function positiveInteger(?string $value): ?int
     {
         if ($value === null || !preg_match('/^\s*(\d+)/', $value, $matches)) {
@@ -341,6 +398,9 @@ final class RuntimeEnvironmentDetector
         return $integer >= 0 ? $integer : null;
     }
 
+    /**
+     * Reads a file when it is available and readable.
+     */
     private function readFile(string $path): ?string
     {
         if (!is_readable($path)) {

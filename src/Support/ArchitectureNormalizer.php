@@ -6,6 +6,9 @@ namespace Laragems\OsInfo\Support;
 
 final class ArchitectureNormalizer
 {
+    /**
+     * Normalizes common architecture aliases.
+     */
     public static function normalize(string $architecture): string
     {
         $normalized = strtolower(trim($architecture));

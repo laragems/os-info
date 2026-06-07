@@ -13,6 +13,9 @@ enum Platform: string
     case Solaris = 'solaris';
     case Unknown = 'unknown';
 
+    /**
+     * Converts PHP_OS_FAMILY into a normalized platform value.
+     */
     public static function fromPhpOsFamily(string $family): self
     {
         return match (strtolower($family)) {

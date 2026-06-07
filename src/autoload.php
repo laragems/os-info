@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+/**
+ * Registers the package autoloader for non-Composer usage.
+ */
 spl_autoload_register(static function (string $class): void {
     $prefix = 'Laragems\\OsInfo\\';
 

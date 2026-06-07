@@ -11,14 +11,21 @@ use Laragems\OsInfo\Support\ArchitectureNormalizer;
 use Laragems\OsInfo\Support\CommandRunner;
 use Laragems\OsInfo\Value\CpuInfo;
 use Laragems\OsInfo\Value\MemoryInfo;
+use Laragems\OsInfo\Value\RuntimeEnvironment;
 
 final class Detector
 {
+    /**
+     * Creates a detector with an optional command runner.
+     */
     public function __construct(
         private readonly ?CommandRunner $commands = null,
     ) {
     }
 
+    /**
+     * Detects operating system information for the current process.
+     */
     public function detect(): OperatingSystemInfo
     {
         $commands = $this->commands ?? new CommandRunner();
@@ -32,7 +39,8 @@ final class Detector
             Platform::Windows => $this->detectWindows($commands, $architecture),
             default => $this->detectFallback($architecture),
         };
-        $runtime = (new RuntimeEnvironmentDetector($commands))->detect($platform, $profile['is_container']);
+        $runtimeDetector = new RuntimeEnvironmentDetector($commands);
+        $isContainer = $profile['is_container'];
 
         return new DetectedOperatingSystemInfo(
             name: $profile['name'],
@@ -46,13 +54,15 @@ final class Detector
             kernelRelease: $this->nullable(@php_uname('r')),
             memory: $profile['memory'],
             cpu: $profile['cpu'],
-            runtime: $runtime,
+            runtime: static fn (): RuntimeEnvironment => $runtimeDetector->detect($platform, $isContainer),
             uptimeSeconds: $profile['uptime_seconds'],
             loadAverage: $this->loadAverage(),
         );
     }
 
     /**
+     * Detects Linux-specific operating system details.
+     *
      * @return array{
      *     name: string,
      *     version: ?string,
@@ -80,6 +90,8 @@ final class Detector
     }
 
     /**
+     * Detects macOS-specific operating system details.
+     *
      * @return array{
      *     name: string,
      *     version: ?string,
@@ -107,6 +119,8 @@ final class Detector
     }
 
     /**
+     * Detects Windows-specific operating system details.
+     *
      * @return array{
      *     name: string,
      *     version: ?string,
@@ -134,6 +148,8 @@ final class Detector
     }
 
     /**
+     * Builds a fallback profile for unknown platforms.
+     *
      * @return array{
      *     name: string,
      *     version: ?string,
@@ -158,6 +174,8 @@ final class Detector
     }
 
     /**
+     * Returns the system load average values when available.
+     *
      * @return array{1m: ?float, 5m: ?float, 15m: ?float}
      */
     private function loadAverage(): array
@@ -179,6 +197,9 @@ final class Detector
         ];
     }
 
+    /**
+     * Returns the first non-empty string from the provided values.
+     */
     private function firstNonEmpty(?string ...$values): string
     {
         foreach ($values as $value) {
@@ -192,6 +213,9 @@ final class Detector
         return 'unknown';
     }
 
+    /**
+     * Trims a string and converts empty values to null.
+     */
     private function nullable(?string $value): ?string
     {
         if ($value === null) {

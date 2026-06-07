@@ -6,6 +6,9 @@ namespace Laragems\OsInfo\Value;
 
 final class MemoryInfo
 {
+    /**
+     * Creates a memory information value object.
+     */
     public function __construct(
         private readonly ?int $totalBytes = null,
         private readonly ?int $availableBytes = null,
@@ -28,6 +31,9 @@ final class MemoryInfo
         }
     }
 
+    /**
+     * Creates memory information from kilobyte values.
+     */
     public static function fromKilobytes(
         ?int $totalKilobytes = null,
         ?int $availableKilobytes = null,
@@ -44,21 +50,33 @@ final class MemoryInfo
         );
     }
 
+    /**
+     * Returns total memory in bytes.
+     */
     public function totalBytes(): ?int
     {
         return $this->totalBytes;
     }
 
+    /**
+     * Returns available memory in bytes.
+     */
     public function availableBytes(): ?int
     {
         return $this->availableBytes;
     }
 
+    /**
+     * Returns free memory in bytes.
+     */
     public function freeBytes(): ?int
     {
         return $this->freeBytes;
     }
 
+    /**
+     * Returns used memory in bytes.
+     */
     public function usedBytes(): ?int
     {
         if ($this->usedBytes !== null) {
@@ -78,17 +96,25 @@ final class MemoryInfo
         return max(0, $this->totalBytes - $availableOrFree);
     }
 
+    /**
+     * Returns total swap or pagefile memory in bytes.
+     */
     public function swapTotalBytes(): ?int
     {
         return $this->swapTotalBytes;
     }
 
+    /**
+     * Returns free swap or pagefile memory in bytes.
+     */
     public function swapFreeBytes(): ?int
     {
         return $this->swapFreeBytes;
     }
 
     /**
+     * Returns memory information as an array payload.
+     *
      * @return array<string, ?int>
      */
     public function toArray(): array
@@ -103,6 +129,9 @@ final class MemoryInfo
         ];
     }
 
+    /**
+     * Converts kilobytes into bytes.
+     */
     private static function kilobytesToBytes(?int $kilobytes): ?int
     {
         return $kilobytes === null ? null : $kilobytes * 1024;

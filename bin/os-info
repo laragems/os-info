@@ -100,6 +100,8 @@ printSection('Load Average', [
 ]);
 
 /**
+ * Prints a titled section of label/value rows.
+ *
  * @param array<string, mixed> $rows
  */
 function printSection(string $title, array $rows): void
@@ -113,6 +115,9 @@ function printSection(string $title, array $rows): void
     echo PHP_EOL;
 }
 
+/**
+ * Formats a value for human-readable CLI output.
+ */
 function formatValue(mixed $value): string
 {
     if ($value === null || $value === '') {
@@ -130,6 +135,9 @@ function formatValue(mixed $value): string
     return (string) $value;
 }
 
+/**
+ * Formats bytes using binary units.
+ */
 function formatBytes(?int $bytes): string
 {
     if ($bytes === null) {
@@ -148,6 +156,9 @@ function formatBytes(?int $bytes): string
     return sprintf($unit === 0 ? '%.0f %s' : '%.2f %s', $value, $units[$unit]);
 }
 
+/**
+ * Formats seconds as a compact uptime label.
+ */
 function formatSeconds(?float $seconds): string
 {
     if ($seconds === null) {
@@ -171,4 +182,3 @@ function formatSeconds(?float $seconds): string
 
     return sprintf('%dm', $minutes);
 }
-

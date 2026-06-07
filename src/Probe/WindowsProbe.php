@@ -10,12 +10,17 @@ use Laragems\OsInfo\Value\MemoryInfo;
 
 final class WindowsProbe
 {
+    /**
+     * Creates a Windows probe with an optional command runner.
+     */
     public function __construct(
         private readonly CommandRunner $commands = new CommandRunner(),
     ) {
     }
 
     /**
+     * Returns Windows operating system metadata.
+     *
      * @return array<string, mixed>
      */
     public function operatingSystem(): array
@@ -39,6 +44,9 @@ final class WindowsProbe
         );
     }
 
+    /**
+     * Returns a Windows memory information snapshot.
+     */
     public function memory(): MemoryInfo
     {
         $os = $this->operatingSystem();
@@ -56,6 +64,9 @@ final class WindowsProbe
         );
     }
 
+    /**
+     * Returns Windows uptime in seconds.
+     */
     public function uptimeSeconds(): ?float
     {
         $output = $this->commands->run([
@@ -70,6 +81,9 @@ final class WindowsProbe
         return $this->positiveFloat($output);
     }
 
+    /**
+     * Returns Windows CPU information.
+     */
     public function cpu(string $architecture): CpuInfo
     {
         $output = $this->commands->run([
@@ -98,6 +112,8 @@ final class WindowsProbe
     }
 
     /**
+     * Parses WMIC key-value output.
+     *
      * @return array<string, string>
      */
     public static function parseWmicValues(string $output): array
@@ -123,6 +139,8 @@ final class WindowsProbe
     }
 
     /**
+     * Parses PowerShell JSON object output.
+     *
      * @return array<string, mixed>
      */
     public static function parsePowerShellJson(string $output): array
@@ -153,6 +171,8 @@ final class WindowsProbe
     }
 
     /**
+     * Runs a PowerShell command and parses JSON output.
+     *
      * @return array<string, mixed>
      */
     private function powershellObject(string $command): array
@@ -169,6 +189,9 @@ final class WindowsProbe
         return $output === null ? [] : self::parsePowerShellJson($output);
     }
 
+    /**
+     * Converts scalar values into trimmed nullable strings.
+     */
     private function nullable(mixed $value): ?string
     {
         if ($value === null) {
@@ -184,6 +207,9 @@ final class WindowsProbe
         return $value === '' ? null : $value;
     }
 
+    /**
+     * Parses a positive integer from a scalar value.
+     */
     private function positiveInteger(mixed $value): ?int
     {
         if (is_int($value) || is_float($value)) {
@@ -201,6 +227,9 @@ final class WindowsProbe
         return $integer > 0 ? $integer : null;
     }
 
+    /**
+     * Parses a non-negative float from a scalar value.
+     */
     private function positiveFloat(mixed $value): ?float
     {
         if (is_int($value) || is_float($value)) {
@@ -218,6 +247,9 @@ final class WindowsProbe
         return $float >= 0 ? $float : null;
     }
 
+    /**
+     * Returns a non-negative difference when both values exist.
+     */
     private function difference(?int $left, ?int $right): ?int
     {
         if ($left === null || $right === null) {

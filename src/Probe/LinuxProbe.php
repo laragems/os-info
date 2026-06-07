@@ -10,12 +10,17 @@ use Laragems\OsInfo\Value\MemoryInfo;
 
 final class LinuxProbe
 {
+    /**
+     * Creates a Linux probe with an optional command runner.
+     */
     public function __construct(
         private readonly CommandRunner $commands = new CommandRunner(),
     ) {
     }
 
     /**
+     * Returns parsed Linux release metadata.
+     *
      * @return array<string, string>
      */
     public function release(): array
@@ -26,6 +31,9 @@ final class LinuxProbe
         return $contents === null ? [] : self::parseKeyValue($contents);
     }
 
+    /**
+     * Returns a Linux memory information snapshot.
+     */
     public function memory(): MemoryInfo
     {
         $contents = $this->readFile('/proc/meminfo');
@@ -33,6 +41,9 @@ final class LinuxProbe
         return $contents === null ? new MemoryInfo() : self::parseMemoryInfo($contents);
     }
 
+    /**
+     * Returns Linux CPU information.
+     */
     public function cpu(string $architecture): CpuInfo
     {
         $contents = $this->readFile('/proc/cpuinfo');
@@ -57,6 +68,9 @@ final class LinuxProbe
         );
     }
 
+    /**
+     * Returns Linux uptime in seconds.
+     */
     public function uptimeSeconds(): ?float
     {
         $contents = $this->readFile('/proc/uptime');
@@ -68,6 +82,9 @@ final class LinuxProbe
         return (float) $matches[1];
     }
 
+    /**
+     * Returns whether Linux container markers are present.
+     */
     public function isContainer(): bool
     {
         foreach (['/.dockerenv', '/run/.containerenv'] as $marker) {
@@ -82,6 +99,8 @@ final class LinuxProbe
     }
 
     /**
+     * Parses shell-style key-value metadata.
+     *
      * @return array<string, string>
      */
     public static function parseKeyValue(string $contents): array
@@ -113,6 +132,9 @@ final class LinuxProbe
         return $values;
     }
 
+    /**
+     * Parses /proc/meminfo into memory information.
+     */
     public static function parseMemoryInfo(string $contents): MemoryInfo
     {
         $values = [];
@@ -132,6 +154,9 @@ final class LinuxProbe
         );
     }
 
+    /**
+     * Parses /proc/cpuinfo into CPU information.
+     */
     public static function parseCpuInfo(string $contents, string $architecture): CpuInfo
     {
         $blocks = self::parseCpuBlocks($contents);
@@ -151,6 +176,8 @@ final class LinuxProbe
     }
 
     /**
+     * Splits /proc/cpuinfo into CPU value blocks.
+     *
      * @return list<array<string, string>>
      */
     private static function parseCpuBlocks(string $contents): array
@@ -182,6 +209,8 @@ final class LinuxProbe
     }
 
     /**
+     * Counts logical CPU cores from parsed CPU blocks.
+     *
      * @param list<array<string, string>> $blocks
      */
     private static function logicalCoreCount(array $blocks): ?int
@@ -198,6 +227,8 @@ final class LinuxProbe
     }
 
     /**
+     * Counts physical CPU cores from parsed CPU blocks.
+     *
      * @param list<array<string, string>> $blocks
      */
     private static function physicalCoreCount(array $blocks): ?int
@@ -231,6 +262,8 @@ final class LinuxProbe
     }
 
     /**
+     * Returns the first existing non-empty value for a key list.
+     *
      * @param array<string, string> $values
      * @param list<string> $keys
      */
@@ -246,6 +279,8 @@ final class LinuxProbe
     }
 
     /**
+     * Parses CPU feature flags from a CPU value block.
+     *
      * @param array<string, string> $values
      * @return list<string>
      */
@@ -263,6 +298,9 @@ final class LinuxProbe
         return array_values(array_unique($flags));
     }
 
+    /**
+     * Parses a positive integer from a string.
+     */
     private static function integerValue(?string $value): ?int
     {
         if ($value === null || !preg_match('/-?\d+/', $value, $matches)) {
@@ -274,6 +312,9 @@ final class LinuxProbe
         return $integer > 0 ? $integer : null;
     }
 
+    /**
+     * Parses a non-negative float from a string.
+     */
     private static function floatValue(?string $value): ?float
     {
         if ($value === null || !preg_match('/-?\d+(?:\.\d+)?/', $value, $matches)) {
@@ -285,6 +326,9 @@ final class LinuxProbe
         return $float >= 0 ? $float : null;
     }
 
+    /**
+     * Parses a positive integer from command output.
+     */
     private function positiveInteger(?string $value): ?int
     {
         if ($value === null || !preg_match('/^\s*(\d+)/', $value, $matches)) {
@@ -296,6 +340,9 @@ final class LinuxProbe
         return $integer > 0 ? $integer : null;
     }
 
+    /**
+     * Reads a file when it is available and readable.
+     */
     private function readFile(string $path): ?string
     {
         if (!is_readable($path)) {

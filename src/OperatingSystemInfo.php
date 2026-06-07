@@ -26,40 +26,86 @@ interface OperatingSystemInfo
     public const LOAD_AVERAGE = 'load_average';
     public const IS_CONTAINER = 'is_container';
 
+    /**
+     * Returns the operating system display name.
+     */
     public function name(): string;
 
+    /**
+     * Returns the normalized platform family.
+     */
     public function platform(): Platform;
 
+    /**
+     * Returns the operating system version label.
+     */
     public function version(): ?string;
 
+    /**
+     * Returns the machine-readable operating system version ID.
+     */
     public function versionId(): ?string;
 
+    /**
+     * Returns the normalized CPU/system architecture.
+     */
     public function architecture(): string;
 
+    /**
+     * Returns the raw architecture reported by the system.
+     */
     public function rawArchitecture(): string;
 
+    /**
+     * Returns the current host name.
+     */
     public function hostname(): ?string;
 
+    /**
+     * Returns the kernel name.
+     */
     public function kernelName(): ?string;
 
+    /**
+     * Returns the kernel release string.
+     */
     public function kernelRelease(): ?string;
 
+    /**
+     * Returns a memory information snapshot.
+     */
     public function memory(): MemoryInfo;
 
+    /**
+     * Returns CPU information.
+     */
     public function cpu(): CpuInfo;
 
+    /**
+     * Returns runtime environment information.
+     */
     public function runtime(): RuntimeEnvironment;
 
+    /**
+     * Returns system uptime in seconds.
+     */
     public function uptimeSeconds(): ?float;
 
     /**
+     * Returns the one, five, and fifteen minute load averages.
+     *
      * @return array{1m: ?float, 5m: ?float, 15m: ?float}
      */
     public function loadAverage(): array;
 
+    /**
+     * Returns whether the runtime appears to be in a container.
+     */
     public function isContainer(): bool;
 
     /**
+     * Returns all available information as an array payload.
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array;

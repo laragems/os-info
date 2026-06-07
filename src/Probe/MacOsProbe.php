@@ -10,16 +10,25 @@ use Laragems\OsInfo\Value\MemoryInfo;
 
 final class MacOsProbe
 {
+    /**
+     * Creates a macOS probe with an optional command runner.
+     */
     public function __construct(
         private readonly CommandRunner $commands = new CommandRunner(),
     ) {
     }
 
+    /**
+     * Returns the macOS product version.
+     */
     public function version(): ?string
     {
         return $this->commands->run(['sw_vers', '-productVersion']);
     }
 
+    /**
+     * Returns a macOS memory information snapshot.
+     */
     public function memory(): MemoryInfo
     {
         $total = $this->positiveInteger($this->commands->run(['sysctl', '-n', 'hw.memsize']));
@@ -30,6 +39,9 @@ final class MacOsProbe
         );
     }
 
+    /**
+     * Returns macOS CPU information.
+     */
     public function cpu(string $architecture): CpuInfo
     {
         $frequency = $this->positiveInteger($this->commands->run(['sysctl', '-n', 'hw.cpufrequency']));
@@ -44,6 +56,9 @@ final class MacOsProbe
         );
     }
 
+    /**
+     * Returns macOS uptime in seconds.
+     */
     public function uptimeSeconds(): ?float
     {
         $bootTime = $this->commands->run(['sysctl', '-n', 'kern.boottime']);
@@ -55,6 +70,9 @@ final class MacOsProbe
         return max(0, time() - (int) $matches[1]);
     }
 
+    /**
+     * Estimates available memory from vm_stat output.
+     */
     private function availableMemoryBytes(): ?int
     {
         $vmStat = $this->commands->run(['vm_stat']);
@@ -75,6 +93,9 @@ final class MacOsProbe
         return $pages > 0 ? $pages * $pageSize : null;
     }
 
+    /**
+     * Parses a positive integer from command output.
+     */
     private function positiveInteger(?string $value): ?int
     {
         if ($value === null || !preg_match('/^\s*(\d+)/', $value, $matches)) {
