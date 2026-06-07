@@ -61,12 +61,12 @@ printf(
 echo $os->runtime()->virtualizationType()->value;
 ```
 
-Example output from a WSL machine:
+Example output from a macOS GitHub Actions runner:
 
 ```text
-Ubuntu 26.04 on x86_64
-20 logical cores, 7.65 GiB RAM
-subsystem
+macOS 15.7.7 on arm64
+3 logical cores, 7.00 GiB RAM
+virtual_machine
 ```
 
 You can also work with a plain array payload:
@@ -119,54 +119,54 @@ php bin/os-info
 php bin/os-info --json
 ```
 
-Example output captured from WSL:
+Example output:
 
 ```text
 Operating System
-  Name:              Ubuntu
-  Platform:          linux
-  Version:           26.04 (Resolute Raccoon)
-  Version ID:        26.04
-  Architecture:      x86_64
-  Raw Architecture:  x86_64
-  Hostname:          legion
-  Kernel:            Linux 6.6.87.2-microsoft-standard-WSL2
+  Name:              macOS
+  Platform:          macos
+  Version:           15.7.7
+  Version ID:        15.7.7
+  Architecture:      arm64
+  Raw Architecture:  arm64
+  Hostname:          sat12-bq154-dda80348-68c7-4cbc-a98f-b4df31f86538-0EC0A85A70EE.local
+  Kernel:            Darwin 24.6.0
   Container:         no
-  Uptime:            12h 46m
+  Uptime:            1m
 
 CPU
-  Model:             12th Gen Intel(R) Core(TM) i7-12700H
-  Vendor:            GenuineIntel
-  Architecture:      x86_64
-  Logical Cores:     20
-  Physical Cores:    10
-  Frequency:         2688.00 MHz
-  Flags:             101
+  Model:             Apple M1 (Virtual)
+  Vendor:            n/a
+  Architecture:      arm64
+  Logical Cores:     3
+  Physical Cores:    3
+  Frequency:         n/a
+  Flags:             0
 
 Runtime Environment
-  Current User:      marius
+  Current User:      runner
   Privileged:        no
   Shell:             /bin/bash
-  Timezone:          America/Toronto
-  Process Count:     35
+  Timezone:          UTC
+  Process Count:     412
   Container:         no
   Virtualized:       yes
-  Virtualization:    subsystem
-  PHP Version:       8.5.4
+  Virtualization:    virtual_machine
+  PHP Version:       8.1.34
   PHP SAPI:          cli
 
 Memory
-  Total:             7.65 GiB
-  Available:         7.10 GiB
-  Free:              6.74 GiB
-  Used:              568.43 MiB
-  Swap Total:        2.00 GiB
-  Swap Free:         2.00 GiB
+  Total:             7.00 GiB
+  Available:         3.14 GiB
+  Free:              n/a
+  Used:              3.86 GiB
+  Swap Total:        n/a
+  Swap Free:         n/a
 
 Load Average
-  1m:                0
-  5m:                0
-  15m:               0
+  1m:                36.66455078125
+  5m:                22.47216796875
+  15m:               9.47900390625
 ```
 
 ## Available Data
