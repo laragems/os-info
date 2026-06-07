@@ -1,6 +1,6 @@
 {
     "name": "laragems/os-info",
-    "description": "Operating system detection for PHP applications.",
+    "description": "Unified OS, CPU, memory, and runtime environment information for PHP applications.",
     "type": "library",
     "license": "MIT",
     "keywords": [
@@ -27,4 +27,3 @@
     },
     "minimum-stability": "stable"
 }
-

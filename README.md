@@ -1,6 +1,6 @@
 # Laragems OS Info
 
-`laragems/os-info` detects operating system information from plain PHP.
+`laragems/os-info` provides unified OS, CPU, memory, and runtime environment information for PHP applications.
 It is framework-free and has no third-party runtime dependencies.
 
 ## Installation
