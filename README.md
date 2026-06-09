@@ -136,7 +136,7 @@ Operating System
 
 CPU
   Model:             Apple M1 (Virtual)
-  Vendor:            n/a
+  Vendor:            Apple
   Architecture:      arm64
   Logical Cores:     3
   Physical Cores:    3

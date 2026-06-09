@@ -7,6 +7,7 @@ use Laragems\OsInfo\OsInfo;
 use Laragems\OsInfo\Platform;
 use Laragems\OsInfo\DetectedOperatingSystemInfo;
 use Laragems\OsInfo\Probe\LinuxProbe;
+use Laragems\OsInfo\Probe\MacOsProbe;
 use Laragems\OsInfo\Probe\WindowsProbe;
 use Laragems\OsInfo\Support\ArchitectureNormalizer;
 use Laragems\OsInfo\Value\CpuInfo;
@@ -150,6 +151,13 @@ CPUINFO, 'x86_64');
         assertSameValue(2, $cpu->logicalCores());
         assertSameValue(2, $cpu->physicalCores());
         assertSameValue(['fpu', 'sse', 'sse2'], $cpu->flags());
+    },
+
+    'macos cpu vendor resolves apple silicon' => function (): void {
+        assertSameValue('Apple', MacOsProbe::resolveCpuVendor(null, 'Apple M5', 'arm64'));
+        assertSameValue('Apple', MacOsProbe::resolveCpuVendor('', null, 'arm64'));
+        assertSameValue('GenuineIntel', MacOsProbe::resolveCpuVendor(' GenuineIntel ', 'Intel Core i7', 'x86_64'));
+        assertSameValue(null, MacOsProbe::resolveCpuVendor(null, null, 'x86_64'));
     },
 
     'wmic parser handles key value output' => function (): void {

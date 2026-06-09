@@ -45,15 +45,38 @@ final class MacOsProbe
     public function cpu(string $architecture): CpuInfo
     {
         $frequency = $this->positiveInteger($this->commands->run(['sysctl', '-n', 'hw.cpufrequency']));
+        $modelName = $this->commands->run(['sysctl', '-n', 'machdep.cpu.brand_string']);
 
         return new CpuInfo(
             architecture: $architecture,
-            modelName: $this->commands->run(['sysctl', '-n', 'machdep.cpu.brand_string']),
-            vendor: $this->commands->run(['sysctl', '-n', 'machdep.cpu.vendor']),
+            modelName: $modelName,
+            vendor: self::resolveCpuVendor(
+                $this->commands->run(['sysctl', '-n', 'machdep.cpu.vendor']),
+                $modelName,
+                $architecture,
+            ),
             logicalCores: $this->positiveInteger($this->commands->run(['sysctl', '-n', 'hw.logicalcpu'])),
             physicalCores: $this->positiveInteger($this->commands->run(['sysctl', '-n', 'hw.physicalcpu'])),
             frequencyMHz: $frequency === null ? null : $frequency / 1000000,
         );
+    }
+
+    /**
+     * Resolves the CPU vendor from macOS sysctl values.
+     */
+    public static function resolveCpuVendor(?string $vendor, ?string $modelName, string $architecture): ?string
+    {
+        $vendor = $vendor === null ? null : trim($vendor);
+
+        if ($vendor !== null && $vendor !== '') {
+            return $vendor;
+        }
+
+        if ($modelName !== null && stripos($modelName, 'Apple') !== false) {
+            return 'Apple';
+        }
+
+        return strtolower($architecture) === 'arm64' ? 'Apple' : null;
     }
 
     /**
